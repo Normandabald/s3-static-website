@@ -1,6 +1,7 @@
 # Static Website Deployment with Terraform and GitHub Actions on AWS
 
 This repository provides a bootstrap setup to deploy and serve a static website using AWS services, Terraform for infrastructure as code, and GitHub Actions for CI/CD.
+Mileage may vary for costs but unless you've got the next big thing, it should be around $0.60/month.
 
 ## Getting Started
 
@@ -20,7 +21,7 @@ If you don't have an AWS account, [create one here](https://aws.amazon.com/).
 2. Navigate to the S3 service.
 3. Create a new S3 bucket to store your Terraform state files. Note down the bucket name as you will need it in the Terraform configuration.
 
-### 4. Create IAM Access Keys
+### 4. Create IAM Access Keys (Optional but encouraged)
 
 1. Navigate to the IAM service in your AWS Management Console.
 2. Create a new IAM user with `programmatic access`.

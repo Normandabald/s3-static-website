@@ -1,0 +1,37 @@
+name: Terraform CD
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: #eg. eu-west-2
+
+jobs:
+  terraform:
+    name: "Terraform CD"
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Ensure it's running only on main branch
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.6.2
+
+      - name: Terraform Init
+        working-directory: ${{ github.workspace }}/terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ${{ github.workspace }}/terraform
+        run: terraform apply -auto-approve

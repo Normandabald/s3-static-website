@@ -81,3 +81,23 @@ locals {
 ### 9. Configure DNS Nameservers in Domain Registrar
 
 Follow guidance from the domain registrar you bought your domain from to configure the domain nameservers to point to AWS Route 53.
+
+### 10. Push Changes to GitHub Repository
+
+From a branch or directly push to `main` and let the Github Actions workflow take care of the rest!
+The Terraform CD is manually triggered by default, but you can change this in the workflow file by adding an event trigger like on push or schedule.
+
+```yaml
+on:
+  push:
+    branches:
+      - main
+```
+
+### 11. Deploy your resources using Terraform
+
+With all of your config setup, you can now deploy your resources using Terraform. You can do this by running the `Terrafrom: CD` Github Actions workflow manually from the Actions tab in your repository.
+
+### 12. Access your website
+
+Assuming all went well (This whole process is (at time of writing) untested), you should now be able to access your website at the domain you configured.

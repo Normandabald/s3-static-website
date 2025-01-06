@@ -21,21 +21,35 @@ If you don't have an AWS account, [create one here](https://aws.amazon.com/).
 2. Navigate to the S3 service.
 3. Create a new S3 bucket to store your Terraform state files. Note down the bucket name as you will need it in the Terraform configuration.
 
-### 4. Create IAM Access Keys (Optional but encouraged)
+### 4. Create an IAM Role for GitHub Actions
 
 1. Navigate to the IAM service in your AWS Management Console.
-2. Create a new IAM user with `programmatic access`.
-3. Attach `AdministratorAccess` policy to the user or create a custom policy with necessary permissions.
-4. Download the access key ID and secret access key. **Keep these credentials secure**.
+2. Create a new IAM role with the following trust policy to allow GitHub Actions to assume the role:
 
-### 5. Add Access Keys to GitHub Actions Secrets
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::YOUR_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:sub": "repo:YOUR_GITHUB_REPO:ref:refs/heads/main"
+        }
+      }
+    }
+  ]
+}
+```
 
-1. In your GitHub repository, navigate to `Settings > Secrets and variables > Actions`.
-2. Add the following secrets:
-   - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY`
+3. Attach the necessary policies to the role (e.g., `AdministratorAccess` if you're lazy and insecure or a custom policy with the required permissions to manage S3, Cloudfront, Route53, ACM ).
+4. Note down the role ARN as you will need it in the GitHub Actions workflows.
 
-### 6. Configure AWS Region Environment Variable in GitHub Actions
+### 5. Configure AWS Region Environment Variable in GitHub Actions
 
 1. Navigate to your `.github/workflows` directory.
 2. Open the workflow files and set the `AWS_REGION` environment variable to your desired AWS region (e.g., `us-east-1`).
@@ -47,7 +61,7 @@ env:
   AWS_REGION: us-east-1
 ```
 
-### 7. Configure S3_WEBSITE_BUCKET Value in [deploy-website.yaml](/.github/workflows/deploy-website.yaml)
+### 6. Configure S3_WEBSITE_BUCKET Value in [deploy-website.yaml](/.github/workflows/deploy-website.yaml)
 
 1. Open the deploy-website.yaml workflow file located in .github/workflows/.
 2. Set the S3_WEBSITE_BUCKET value to the name of the S3 bucket where your static website files will be stored.
@@ -59,7 +73,7 @@ env:
   S3_WEBSITE_BUCKET: your-website-bucket-name
 ```
 
-### 8. Configure Desired Values in [locals.tf](/terraform/locals.tf)
+### 7. Configure Desired Values in [locals.tf](/terraform/locals.tf)
 
 1. Navigate to the terraform/ directory.
 2. Open the [locals.tf](/terraform/locals.tf) file.
@@ -78,11 +92,11 @@ locals {
 }
 ```
 
-### 9. Configure DNS Nameservers in Domain Registrar
+### 8. Configure DNS Nameservers in Domain Registrar
 
 Follow guidance from the domain registrar you bought your domain from to configure the domain nameservers to point to AWS Route 53.
 
-### 10. Push Changes to GitHub Repository
+### 9. Push Changes to GitHub Repository
 
 From a branch or directly push to `main` and let the Github Actions workflow take care of the rest!
 The Terraform CD is manually triggered by default, but you can change this in the workflow file by adding an event trigger like on push or schedule.
@@ -94,10 +108,10 @@ on:
       - main
 ```
 
-### 11. Deploy your resources using Terraform
+### 10. Deploy your resources using Terraform
 
 With all of your config setup, you can now deploy your resources using Terraform. You can do this by running the `Terrafrom: CD` Github Actions workflow manually from the Actions tab in your repository.
 
-### 12. Access your website
+### 11. Access your website
 
 Assuming all went well (This whole process is (at time of writing) untested), you should now be able to access your website at the domain you configured.

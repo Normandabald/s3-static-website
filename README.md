@@ -98,8 +98,8 @@ Follow guidance from the domain registrar you bought your domain from to configu
 
 ### 9. Push Changes to GitHub Repository
 
-From a branch or directly push to `main` and let the Github Actions workflow take care of the rest!
-The Terraform CD is manually triggered by default, but you can change this in the workflow file by adding an event trigger like on push or schedule.
+Merge your changes to `main` and let the Github Actions workflow take care of the rest!
+The Terraform: CD action `terraform-apply.yaml` is manually triggered by default, but you can change this in the workflow file by adding an event trigger like on push to `main`:
 
 ```yaml
 on:
@@ -112,6 +112,12 @@ on:
 
 With all of your config setup, you can now deploy your resources using Terraform. You can do this by running the `Terrafrom: CD` Github Actions workflow manually from the Actions tab in your repository.
 
-### 11. Access your website
+> **_NOTE:_** The SSL certificate may require you to take some action first to validate the domain. This can be done by adding a CNAME record to your domain's DNS settings. The certificate will be created in the `us-east-1` region, so you may need to switch to that region in the AWS Console to see the certificate. Your terraform may fail on the first run.
+
+### 11. Deploy your web content
+
+Once you have your resources deployed, you can deploy your web content to the S3 bucket. You can do this by running the `Deploy Website` Github Actions workflow manually from the Actions tab in your repository. This will run an S3 Sync command to copy the contents of the `src` directory to the S3 bucket.
+
+### 12. Access your website
 
 Assuming all went well (This whole process is (at time of writing) untested), you should now be able to access your website at the domain you configured.
